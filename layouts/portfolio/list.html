@@ -10,7 +10,7 @@
 <div class="portfolio-wrap">
 
   <nav class="series-nav">
-    {{ range $i, $section := .Sections }}
+    {{ range $i, $section := (.Sections.ByParam "weight") }}
     <a href="#" class="series-link {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
       {{ $section.Title }}
     </a>
@@ -32,7 +32,7 @@
       allowfullscreen>
     </iframe>
   </div>
-  {{ else }}
+ {{ else }}
   {{ range $section.Resources.ByType "image" }}
   <div class="slide">
     <img src="{{ .RelPermalink }}" alt="{{ .Title }}" />
@@ -49,7 +49,7 @@
   </div>
 
   {{ range .Sections }}
-  {{ if eq .Title "Photography" }}
+  {{ if ne .Title "VFX" }}
   <div class="trail-section" id="trailSection">
     <p class="trail-hint" id="trailHint">move your cursor</p>
     <div class="trail-images" id="trailImages">
@@ -66,18 +66,14 @@
 <style>
 .portfolio-wrap { position: relative; width: 100%; }
 .vimeo-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  position: relative;
+  width: 100%;
+  max-width: 960px;
 }
 .vimeo-wrap iframe {
   width: 100%;
-  height: 100%;
-  max-width: 960px;
-  max-height: 540px;
+  aspect-ratio: 16/9;
+  height: auto;
 }
 .series-nav {
   display: flex;
@@ -102,6 +98,9 @@
   border-bottom: 2px solid #ffb86c;
   padding-bottom: 0.75rem;
 }
+.series { display: none; width: 100%; height: 100%; }
+.series.active { display: block; }
+.series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; }
 
 .gallery-container {
   position: relative;
@@ -111,8 +110,11 @@
   background: #111;
 }
 
-.series.vfx-series { display: none; width: 100%; height: 100%; background: #000; }
-.series.vfx-series.active { display: flex; align-items: center; justify-content: center; }
+.gallery-container:has(.vfx-series.active) {
+  background: transparent;
+  height: auto;
+}
+
 
 .slide {
   position: absolute;
@@ -222,7 +224,13 @@
     currentSlide = 0;
     getSeries(index).classList.add('active');
     document.querySelectorAll('.series-link')[index].classList.add('active');
-    showSlide(0);
+    const isVfx = getSeries(index).classList.contains('vfx-series');
+    document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
+    document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
+    document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
+    const trail = document.getElementById('trailSection');
+if (trail) trail.style.display = isVfx ? 'none' : 'block';
+    if (!isVfx) showSlide(0);
   }
 
   document.querySelector('.next').addEventListener('click', () => showSlide(currentSlide + 1));
