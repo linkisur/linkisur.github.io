@@ -1,0 +1,17 @@
+<style>
+.navigation-menu__inner > li > a.nav-active {
+  border-bottom: 2px solid #ffb86c;
+  color: #ffb86c;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.navigation-menu__inner > li > a').forEach(function(link) {
+    var linkPath = new URL(link.href).pathname.replace(/\/$/, '');
+    var currentPath = window.location.pathname.replace(/\/$/, '');
+    if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
+      link.classList.add('nav-active');
+    }
+  });
+});
+</script>
