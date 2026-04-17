@@ -443,7 +443,7 @@
     document.querySelector('.total').textContent = slides.length;
   }
 
-  function switchSeries(index) {
+function switchSeries(index) {
     document.querySelectorAll('.series').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.series-link').forEach(l => l.classList.remove('active'));
     currentSeries = index;
@@ -454,8 +454,6 @@
     document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
-    const trail = document.getElementById('trailSection');
-if (trail) trail.style.display = isVfx ? 'none' : 'block';
     if (!isVfx) showSlide(0);
   }
 
