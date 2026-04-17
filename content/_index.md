@@ -1,6 +1,6 @@
 ---
 title: "Hannah Wilk"
-outputs:
-  - html
+aliases:
+  - /
+url: /portfolio
 ---
-<script>window.location.replace('/portfolio');</script>
