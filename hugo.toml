@@ -12,6 +12,7 @@ relativeURLs = true
   showMenuItems = 4
   fullWidthTheme = false
   centerTheme = true
+  mainSections = ["portfolio"]
 
 [languages]
   [languages.en]
