@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NYC on Hannah Wilk</title>
+    <link>/portfolio/photography/nyc/</link>
+    <description>Recent content in NYC on Hannah Wilk</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="/portfolio/photography/nyc/index.xml" rel="self" type="application/rss+xml" />
+  </channel>
+</rss>
