@@ -1,10 +1,8 @@
 baseURL = "https://hlwilk.com/"
 languageCode = "en-us"
 theme = "terminal"
-[params]
-  mainSections = ["portfolio"]
-relativeURLs = true
 pagination.pagerSize = 5
+relativeURLs = true
 
 [markup.highlight]
   noClasses = false
@@ -18,22 +16,28 @@ pagination.pagerSize = 5
 [languages]
   [languages.en]
     languageName = "English"
-  [languages.en.params.logo]
+    title = "Hannah Wilk"
+
+    [languages.en.params]
+      subtitle = "VFX Artist & Photographer"
+
+      [languages.en.params.logo]
         logoText = "Hannah Wilk"
         logoHomeLink = "/"
 
-    [[languages.en.menu.main]]
-          identifier = "portfolio"
-          name = "Portfolio"
-          url = "/portfolio"
-          weight = 1
-        [[languages.en.menu.main]]
-          identifier = "about"
-          name = "About"
-          url = "/about"
-          weight = 2
-        [[languages.en.menu.main]]
-          identifier = "posts"
-          name = "Posts"
-          url = "/posts"
-          weight = 3
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "portfolio"
+        name = "Portfolio"
+        url = "/portfolio"
+        weight = 1
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "About"
+        url = "/about"
+        weight = 2
+      [[languages.en.menu.main]]
+        identifier = "posts"
+        name = "Posts"
+        url = "/posts"
+        weight = 3
