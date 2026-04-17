@@ -15,7 +15,9 @@ pagination.pagerSize = 5
 [languages]
   [languages.en]
     languageName = "English"
-    title = "linkisur"
+  [languages.en.params.logo]
+        logoText = "Hannah Wilk"
+        logoHomeLink = "/"
 
     [[languages.en.menu.main]]
           identifier = "portfolio"
