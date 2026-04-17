@@ -107,7 +107,7 @@
   width: 100%;
   height: 75vh;
   overflow: hidden;
-  background: #111;
+  background: transparent;
 }
 
 .gallery-container:has(.vfx-series.active) {
@@ -127,8 +127,7 @@
 .slide.active { opacity: 1; transform: translateX(0); }
 .slide.exit { opacity: 0; transform: translateX(-60px); }
 
-.slide img { width: 100%; height: 100%; object-fit: contain; }
-
+.slide img { width: 100%; height: 100%; object-fit: contain; display: block; border: none !important; outline: none !important; box-shadow: none !important; }
 .nav-btn {
   position: absolute;
   top: 50%;
