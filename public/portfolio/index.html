@@ -266,7 +266,7 @@
 
   
   <div class="trail-section" id="trailSection">
-    <p class="trail-hint" id="trailHint">move your cursor</p>
+    <p class="trail-hint" id="trailHint"><span class="desktop-hint">move your cursor</span><span class="mobile-hint">slide finger</span></p>
     <div class="trail-images" id="trailImages">
       
       <img class="trail-img" src="../portfolio/photography/000036680016.jpg" alt="" />
@@ -343,6 +343,11 @@
   padding: 2rem 0;
 }
 
+.mobile-hint { display: none; }
+@media (max-width: 768px) {
+  .desktop-hint { display: none; }
+  .mobile-hint { display: inline; }
+}
 
 .slide {
   position: absolute;
@@ -517,6 +522,33 @@ function switchSeries(index) {
       hasMovedOnce = true;
       trailHint.style.opacity = '0';
     }
+    trailSection.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    if (!hasMovedOnce) {
+      hasMovedOnce = true;
+      trailHint.style.opacity = '0';
+    }
+    if (lastX === null) {
+      lastX = touch.clientX;
+      lastY = touch.clientY;
+      spawnImage(touch.clientX, touch.clientY);
+      return;
+    }
+    const dx = touch.clientX - lastX;
+    const dy = touch.clientY - lastY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist >= DISTANCE_THRESHOLD) {
+      lastX = touch.clientX;
+      lastY = touch.clientY;
+      spawnImage(touch.clientX, touch.clientY);
+    }
+  }, { passive: false });
+
+  trailSection.addEventListener('touchend', () => {
+    lastX = null;
+    lastY = null;
+  });
 
     if (lastX === null) {
       lastX = e.clientX;
