@@ -269,7 +269,7 @@
 
   
   <div class="trail-section" id="trailSection">
-    <p class="trail-hint" id="trailHint">move your cursor</p>
+    <p class="trail-hint" id="trailHint"><span class="desktop-hint">move your cursor</span><span class="mobile-hint">slide finger</span></p>
     <div class="trail-images" id="trailImages">
       
       <img class="trail-img" src="./portfolio/photography/000036680016.jpg" alt="" />
@@ -346,6 +346,11 @@
   padding: 2rem 0;
 }
 
+.mobile-hint { display: none; }
+@media (max-width: 768px) {
+  .desktop-hint { display: none; }
+  .mobile-hint { display: inline; }
+}
 
 .slide {
   position: absolute;
@@ -396,6 +401,7 @@
   margin-top: 4rem;
   overflow: hidden;
   cursor: none;
+  touch-action: none;
 }
 
 .trail-hint {
@@ -429,7 +435,6 @@
 
 <script>
 (function() {
-
   let currentSlide = 0;
   let currentSeries = 0;
 
@@ -447,7 +452,7 @@
     document.querySelector('.total').textContent = slides.length;
   }
 
-function switchSeries(index) {
+  function switchSeries(index) {
     document.querySelectorAll('.series').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.series-link').forEach(l => l.classList.remove('active'));
     currentSeries = index;
@@ -485,34 +490,22 @@ function switchSeries(index) {
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
-  const DISTANCE_THRESHOLD = 80;
-  const LIFE = 9000;
+  const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 80;
 
   function spawnImage(x, y) {
     const rect = trailSection.getBoundingClientRect();
     const localX = x - rect.left;
     const localY = y - rect.top;
-
     const img = imgs[imgIndex % imgs.length];
     imgIndex++;
-
-    const rotation = 0;
     const offsetX = (Math.random() - 0.5) * 30;
     const offsetY = (Math.random() - 0.5) * 30;
-
-    img.style.left = (localX - 110 + offsetX) + 'px';
-    img.style.top  = (localY - 80  + offsetY) + 'px';
-    img.style.transform = `rotate(${rotation}deg) scale(1)`;
+    img.style.left = (localX - 220 + offsetX) + 'px';
+    img.style.top = (localY - 160 + offsetY) + 'px';
+    img.style.transform = 'rotate(0deg) scale(1)';
     img.style.opacity = '1';
     img.style.transition = 'none';
     img.style.zIndex = imgIndex;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        img.style.transition = 'none';
-        img.style.transform = 'rotate(0deg) scale(1)';
-      });
-    });
   }
 
   trailSection.addEventListener('mousemove', e => {
@@ -520,18 +513,15 @@ function switchSeries(index) {
       hasMovedOnce = true;
       trailHint.style.opacity = '0';
     }
-
     if (lastX === null) {
       lastX = e.clientX;
       lastY = e.clientY;
       spawnImage(e.clientX, e.clientY);
       return;
     }
-
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     const dist = Math.sqrt(dx * dx + dy * dy);
-
     if (dist >= DISTANCE_THRESHOLD) {
       lastX = e.clientX;
       lastY = e.clientY;
@@ -540,6 +530,35 @@ function switchSeries(index) {
   });
 
   trailSection.addEventListener('mouseleave', () => {
+    lastX = null;
+    lastY = null;
+  });
+
+  trailSection.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.changedTouches[0];
+    if (!hasMovedOnce) {
+      hasMovedOnce = true;
+      trailHint.style.opacity = '0';
+    }
+    if (lastX === null) {
+      lastX = touch.clientX;
+      lastY = touch.clientY;
+      spawnImage(touch.clientX, touch.clientY);
+      return;
+    }
+    const dx = touch.clientX - lastX;
+    const dy = touch.clientY - lastY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist >= DISTANCE_THRESHOLD) {
+      lastX = touch.clientX;
+      lastY = touch.clientY;
+      spawnImage(touch.clientX, touch.clientY);
+    }
+  }, { passive: false, capture: true });
+
+  trailSection.addEventListener('touchend', () => {
     lastX = null;
     lastY = null;
   });
