@@ -1,4 +1,6 @@
 ---
 title: "Hannah Wilk"
-redirect: "/portfolio"
+url: "/"
+aliases:
+  - /portfolio
 ---

@@ -1,6 +1,8 @@
 baseURL = "https://hlwilk.com/"
 languageCode = "en-us"
 theme = "terminal"
+[params]
+  mainSections = ["portfolio"]
 relativeURLs = true
 pagination.pagerSize = 5
 
