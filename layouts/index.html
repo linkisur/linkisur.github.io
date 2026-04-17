@@ -1,6 +1,320 @@
 {{ define "main" }}
-{{ $portfolio := .Site.GetPage "/portfolio" }}
-{{ if $portfolio }}
-  {{ template "main" $portfolio }}
+
+{{ $allImages := slice }}
+{{ range .Sections }}
+  {{ range .Resources.ByType "image" }}
+    {{ $allImages = $allImages | append . }}
+  {{ end }}
 {{ end }}
+
+<div class="portfolio-wrap">
+
+  <nav class="series-nav">
+    {{ range $i, $section := (.Sections.ByParam "weight") }}
+    <a href="#" class="series-link {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
+      {{ $section.Title }}
+    </a>
+    {{ end }}
+  </nav>
+
+  <div class="gallery-container">
+    {{ range $i, $section := (.Sections.ByParam "weight") }}
+{{ if eq $section.Title "VFX" }}
+<div class="series vfx-series {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
+{{ else }}
+<div class="series {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
+{{ end }}
+  {{ if eq $section.Title "VFX" }}
+  <div class="vimeo-wrap">
+    <iframe src="https://player.vimeo.com/video/1074003887?autoplay=0&title=0&byline=0&portrait=0"
+      frameborder="0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+ {{ else }}
+  {{ range $section.Resources.ByType "image" }}
+  <div class="slide">
+    <img src="{{ .RelPermalink }}" alt="{{ .Title }}" />
+  </div>
+  {{ end }}
+  {{ end }}
+</div>
+{{ end }}
+    <button class="nav-btn prev" aria-label="Previous">&#8592;</button>
+    <button class="nav-btn next" aria-label="Next">&#8594;</button>
+    <div class="slide-counter">
+      <span class="current">1</span> / <span class="total">1</span>
+    </div>
+  </div>
+
+  {{ range .Sections }}
+  {{ if ne .Title "VFX" }}
+  <div class="trail-section" id="trailSection">
+    <p class="trail-hint" id="trailHint">move your cursor</p>
+    <div class="trail-images" id="trailImages">
+      {{ range .Resources.ByType "image" }}
+      <img class="trail-img" src="{{ .RelPermalink }}" alt="" />
+      {{ end }}
+    </div>
+  </div>
+  {{ end }}
+{{ end }}
+
+</div>
+
+<style>
+.portfolio-wrap { position: relative; width: 100%; }
+.vimeo-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+}
+.vimeo-wrap iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
+}
+.series-nav {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.75rem;
+}
+
+.series-link {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #888;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+.series-link:hover { color: #ccc; }
+.series-link.active {
+  color: #ffb86c;
+  border-bottom: 2px solid #ffb86c;
+  padding-bottom: 0.75rem;
+}
+.series { display: none; width: 100%; height: 100%; }
+.series.active { display: block; }
+.series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; }
+.gallery-container {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.gallery-container:has(.vfx-series.active) {
+  background: transparent;
+  height: auto;
+  border: none;
+  padding: 2rem 0;
+}
+
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateX(60px);
+}
+
+.slide.active { opacity: 1; transform: translateX(0); }
+.slide.exit { opacity: 0; transform: translateX(-60px); }
+
+.slide img { width: 100%; height: 100%; object-fit: contain; display: block; border: none !important; outline: none !important; box-shadow: none !important; }
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 1rem;
+  transition: color 0.2s;
+  z-index: 10;
+  font-family: monospace;
+}
+
+.nav-btn:hover { color: #ffb86c; }
+.nav-btn.prev { left: 1rem; }
+.nav-btn.next { right: 1rem; }
+
+.slide-counter {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.1em;
+}
+
+.trail-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #0d0d0d;
+  margin-top: 4rem;
+  overflow: hidden;
+  cursor: none;
+}
+
+.trail-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #333;
+  letter-spacing: 0.2em;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.trail-images { position: absolute; inset: 0; pointer-events: none; }
+
+.trail-img {
+  position: absolute;
+  width: 440px;
+  height: 320px;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  border: none;
+  background: none;
+}
+</style>
+
+<script>
+(function() {
+
+  let currentSlide = 0;
+  let currentSeries = 0;
+
+  function getSeries(i) { return document.querySelectorAll('.series')[i]; }
+  function getSlides(seriesEl) { return seriesEl.querySelectorAll('.slide'); }
+
+  function showSlide(index) {
+    const series = getSeries(currentSeries);
+    const slides = getSlides(series);
+    if (!slides.length) return;
+    slides.forEach(s => s.classList.remove('active', 'exit'));
+    currentSlide = (index + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    document.querySelector('.current').textContent = currentSlide + 1;
+    document.querySelector('.total').textContent = slides.length;
+  }
+
+function switchSeries(index) {
+    document.querySelectorAll('.series').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.series-link').forEach(l => l.classList.remove('active'));
+    currentSeries = index;
+    currentSlide = 0;
+    getSeries(index).classList.add('active');
+    document.querySelectorAll('.series-link')[index].classList.add('active');
+    const isVfx = getSeries(index).classList.contains('vfx-series');
+    document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
+    document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
+    document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
+    if (!isVfx) showSlide(0);
+  }
+
+  document.querySelector('.next').addEventListener('click', () => showSlide(currentSlide + 1));
+  document.querySelector('.prev').addEventListener('click', () => showSlide(currentSlide - 1));
+
+  document.querySelectorAll('.series-link').forEach((link, i) => {
+    link.addEventListener('click', e => { e.preventDefault(); switchSeries(i); });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') showSlide(currentSlide + 1);
+    if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+  });
+
+  showSlide(0);
+
+  const trailSection = document.getElementById('trailSection');
+  const trailHint = document.getElementById('trailHint');
+  const imgs = Array.from(document.querySelectorAll('.trail-img'));
+
+  if (!imgs.length) return;
+
+  let imgIndex = 0;
+  let lastX = null;
+  let lastY = null;
+  let hasMovedOnce = false;
+  const DISTANCE_THRESHOLD = 80;
+  const LIFE = 9000;
+
+  function spawnImage(x, y) {
+    const rect = trailSection.getBoundingClientRect();
+    const localX = x - rect.left;
+    const localY = y - rect.top;
+
+    const img = imgs[imgIndex % imgs.length];
+    imgIndex++;
+
+    const rotation = 0;
+    const offsetX = (Math.random() - 0.5) * 30;
+    const offsetY = (Math.random() - 0.5) * 30;
+
+    img.style.left = (localX - 110 + offsetX) + 'px';
+    img.style.top  = (localY - 80  + offsetY) + 'px';
+    img.style.transform = `rotate(${rotation}deg) scale(1)`;
+    img.style.opacity = '1';
+    img.style.transition = 'none';
+    img.style.zIndex = imgIndex;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        img.style.transition = 'none';
+        img.style.transform = 'rotate(0deg) scale(1)';
+      });
+    });
+  }
+
+  trailSection.addEventListener('mousemove', e => {
+    if (!hasMovedOnce) {
+      hasMovedOnce = true;
+      trailHint.style.opacity = '0';
+    }
+
+    if (lastX === null) {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      spawnImage(e.clientX, e.clientY);
+      return;
+    }
+
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist >= DISTANCE_THRESHOLD) {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      spawnImage(e.clientX, e.clientY);
+    }
+  });
+
+  trailSection.addEventListener('mouseleave', () => {
+    lastX = null;
+    lastY = null;
+  });
+
+})();
+</script>
+
 {{ end }}
