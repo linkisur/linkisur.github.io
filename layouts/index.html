@@ -1,3 +1,6 @@
 {{ define "main" }}
-<script>window.location.replace("/portfolio");</script>
+{{ $portfolio := .Site.GetPage "/portfolio" }}
+{{ if $portfolio }}
+  {{ template "main" $portfolio }}
+{{ end }}
 {{ end }}
