@@ -455,6 +455,8 @@
     document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
+    const trail = document.getElementById('trailSection');
+if (trail) trail.style.display = isVfx ? 'none' : 'block';
     if (!isVfx) showSlide(0);
   }
 
