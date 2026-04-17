@@ -170,21 +170,21 @@
 
 
   
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
 
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
   
 
 
@@ -193,11 +193,11 @@
   <nav class="series-nav">
     
     <a href="#" class="series-link active" data-series="0">
-      Photography
+      VFX
     </a>
     
     <a href="#" class="series-link " data-series="1">
-      VFX
+      Photography
     </a>
     
   </nav>
@@ -205,7 +205,21 @@
   <div class="gallery-container">
     
 
-<div class="series active" data-series="0">
+<div class="series vfx-series active" data-series="0">
+
+  
+  <div class="vimeo-wrap">
+    <iframe src="https://player.vimeo.com/video/1074003887?autoplay=0&title=0&byline=0&portrait=0"
+      frameborder="0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+ 
+</div>
+
+
+<div class="series " data-series="1">
 
   
   
@@ -240,20 +254,6 @@
   
 </div>
 
-
-<div class="series vfx-series " data-series="1">
-
-  
-  <div class="vimeo-wrap">
-    <iframe src="https://player.vimeo.com/video/1074003887?autoplay=0&title=0&byline=0&portrait=0"
-      frameborder="0"
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
- 
-</div>
-
     <button class="nav-btn prev" aria-label="Previous">&#8592;</button>
     <button class="nav-btn next" aria-label="Next">&#8594;</button>
     <div class="slide-counter">
@@ -262,6 +262,8 @@
   </div>
 
   
+  
+
   
   <div class="trail-section" id="trailSection">
     <p class="trail-hint" id="trailHint">move your cursor</p>
@@ -283,8 +285,6 @@
       
     </div>
   </div>
-  
-
   
 
 
@@ -455,8 +455,6 @@
     document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
-    const trail = document.getElementById('trailSection');
-if (trail) trail.style.display = isVfx ? 'none' : 'block';
     if (!isVfx) showSlide(0);
   }
 

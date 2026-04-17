@@ -226,12 +226,19 @@
 }
 .series { display: none; width: 100%; height: 100%; }
 .series.active { display: block; }
-.series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; }.gallery-container {
+.series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; }
+
+.gallery-container {
   position: relative;
   width: 100%;
   height: 75vh;
   overflow: hidden;
   background: #111;
+}
+
+.gallery-container:has(.vfx-series.active) {
+  background: transparent;
+  height: auto;
 }
 
 
@@ -347,8 +354,6 @@
     document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
     document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
-    const trail = document.getElementById('trailSection');
-if (trail) trail.style.display = isVfx ? 'none' : 'block';
     if (!isVfx) showSlide(0);
   }
 
