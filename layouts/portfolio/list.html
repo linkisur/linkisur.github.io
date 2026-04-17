@@ -18,8 +18,12 @@
   </nav>
 
   <div class="gallery-container">
-    {{ range $i, $section := .Sections }}
+    {{ range $i, $section := (.Sections.ByParam "weight") }}
+{{ if eq $section.Title "VFX" }}
+<div class="series vfx-series {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
+{{ else }}
 <div class="series {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
+{{ end }}
   {{ if eq $section.Title "VFX" }}
   <div class="vimeo-wrap">
     <iframe src="https://player.vimeo.com/video/1074003887?autoplay=0&title=0&byline=0&portrait=0"
@@ -44,14 +48,18 @@
     </div>
   </div>
 
+  {{ range .Sections }}
+  {{ if eq .Title "Photography" }}
   <div class="trail-section" id="trailSection">
     <p class="trail-hint" id="trailHint">move your cursor</p>
     <div class="trail-images" id="trailImages">
-      {{ range $allImages }}
+      {{ range .Resources.ByType "image" }}
       <img class="trail-img" src="{{ .RelPermalink }}" alt="" />
       {{ end }}
     </div>
   </div>
+  {{ end }}
+{{ end }}
 
 </div>
 
@@ -103,8 +111,8 @@
   background: #111;
 }
 
-.series { display: none; width: 100%; height: 100%; }
-.series.active { display: block; }
+.series.vfx-series { display: none; width: 100%; height: 100%; background: #000; }
+.series.vfx-series.active { display: flex; align-items: center; justify-content: center; }
 
 .slide {
   position: absolute;
