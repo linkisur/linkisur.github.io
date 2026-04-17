@@ -1,0 +1,7 @@
+.navigation-menu__inner > li > a[href="/portfolio"].active,
+.navigation-menu__inner > li > a[href="/about"].active,
+.navigation-menu__inner > li > a[href="/posts"].active {
+  border: 1px solid #444;
+  padding: 0.3rem 0.75rem;
+  background: #2a2a2a;
+}

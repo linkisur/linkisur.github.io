@@ -1,4 +1,6 @@
 {{ define "main" }}
+{{ $portfolio := .Site.GetPage "portfolio" }}
+{{ with $portfolio }}
 
 {{ $allImages := slice }}
 {{ range .Sections }}
@@ -317,4 +319,5 @@ function switchSeries(index) {
 })();
 </script>
 
+{{ end }}
 {{ end }}
