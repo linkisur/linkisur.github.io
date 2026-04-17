@@ -636,10 +636,26 @@ document.addEventListener('DOMContentLoaded', function() {
       slides[index].classList.add('active');
       if (current) current.textContent = index + 1;
     }
-    if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
-    if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
-    showSlide(0);
-    albumControllers.push({ showSlide, getIndex: () => index });
+   if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
+if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
+
+let touchStartX = null;
+gallery.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+
+gallery.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) showSlide(index + 1);
+    else showSlide(index - 1);
+  }
+  touchStartX = null;
+}, { passive: true });
+
+showSlide(0);
+albumControllers.push({ showSlide, getIndex: () => index });
   });
 
   let openIndex = null;
