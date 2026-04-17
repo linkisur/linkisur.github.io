@@ -1,3 +1,4 @@
 ---
-title: "linkisur"
+title: "Hannah Wilk"
+redirect: "/portfolio"
 ---
