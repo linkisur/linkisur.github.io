@@ -291,14 +291,10 @@ function switchSeries(index) {
     });
   }
 
-  trailSection.addEventListener('mousemove', e => {
-    if (!hasMovedOnce) {
-      hasMovedOnce = true;
-      trailHint.style.opacity = '0';
-    }
-    trailSection.addEventListener('touchmove', e => {
+  ttrailSection.addEventListener('touchmove', function(e) {
     e.preventDefault();
-    const touch = e.touches[0];
+    e.stopPropagation();
+    const touch = e.changedTouches[0];
     if (!hasMovedOnce) {
       hasMovedOnce = true;
       trailHint.style.opacity = '0';
@@ -317,7 +313,7 @@ function switchSeries(index) {
       lastY = touch.clientY;
       spawnImage(touch.clientX, touch.clientY);
     }
-  }, { passive: false });
+  }, { passive: false, capture: true });
 
   trailSection.addEventListener('touchend', () => {
     lastX = null;
