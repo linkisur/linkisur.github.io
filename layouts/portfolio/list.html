@@ -171,6 +171,7 @@
   margin-top: 4rem;
   overflow: hidden;
   cursor: none;
+  touch-action: none;
 }
 
 .trail-hint {
@@ -260,7 +261,7 @@ function switchSeries(index) {
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
-  const DISTANCE_THRESHOLD = 80;
+  const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 80;
   const LIFE = 9000;
 
   function spawnImage(x, y) {
