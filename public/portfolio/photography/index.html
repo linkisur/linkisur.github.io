@@ -184,23 +184,109 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+  
+
+  
+    
+  
+    
+  
+    
+  
+  
+
 
 <div class="portfolio-wrap">
 
   <nav class="series-nav">
     
+    <a href="#" class="series-link active" data-series="0">
+      London
+    </a>
+    
+    <a href="#" class="series-link " data-series="1">
+      NYC
+    </a>
+    
   </nav>
 
   <div class="gallery-container">
     
-    <button class="nav-btn prev" aria-label="Previous">&#8592;</button>
-    <button class="nav-btn next" aria-label="Next">&#8594;</button>
-    <div class="slide-counter">
+
+<div class="series active" data-series="0">
+
+  
+  <div class="album-wrap">
+    <div class="album-list">
+      
+    </div>
+    <div class="album-gallery-panel">
+      
+    </div>
+  </div>
+  
+</div>
+
+
+<div class="series " data-series="1">
+
+  
+  <div class="album-wrap">
+    <div class="album-list">
+      
+    </div>
+    <div class="album-gallery-panel">
+      
+    </div>
+  </div>
+  
+</div>
+
+    <button class="nav-btn prev vfx-nav" aria-label="Previous">&#8592;</button>
+    <button class="nav-btn next vfx-nav" aria-label="Next">&#8594;</button>
+    <div class="slide-counter vfx-counter">
       <span class="current">1</span> / <span class="total">1</span>
     </div>
   </div>
 
   
+  
+  <div class="trail-section" id="trailSection">
+    <p class="trail-hint" id="trailHint"><span class="desktop-hint">move your cursor</span><span class="mobile-hint">slide finger</span></p>
+    <div class="trail-images" id="trailImages">
+      
+    </div>
+  </div>
+  
+
+  
+  <div class="trail-section" id="trailSection">
+    <p class="trail-hint" id="trailHint"><span class="desktop-hint">move your cursor</span><span class="mobile-hint">slide finger</span></p>
+    <div class="trail-images" id="trailImages">
+      
+    </div>
+  </div>
+  
+
 
 </div>
 
@@ -210,7 +296,59 @@ document.addEventListener('DOMContentLoaded', function() {
   position: relative;
   width: 100%;
   max-width: 960px;
+}.album-wrap { width: 100%; }
+
+.album-list {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  flex-wrap: wrap;
 }
+
+.album-name {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #888;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid transparent;
+}
+
+.album-name:hover { color: #ffb86c; }
+.album-name.active {
+  color: #ffb86c;
+  border-bottom: 2px solid #ffb86c;
+}
+
+.album-sep { color: #444; font-family: 'Fira Code', monospace; font-size: 0.85rem; }
+
+.album-gallery-panel { width: 100%; }
+
+.album-gallery {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.album-gallery.open {
+  display: block;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.album-slides { position: absolute; inset: 0; }
+.album-slides .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; }
+.album-slides .slide.active { opacity: 1; }
 .vimeo-wrap iframe {
   width: 100%;
   aspect-ratio: 16/9;
@@ -342,25 +480,29 @@ document.addEventListener('DOMContentLoaded', function() {
   border: none;
   background: none;
 }
+.vfx-counter { display: none; }
+.vfx-nav { display: none; }
 </style>
 
 <script>
 (function() {
-  let currentSlide = 0;
   let currentSeries = 0;
+  let currentSlide = 0;
 
   function getSeries(i) { return document.querySelectorAll('.series')[i]; }
-  function getSlides(seriesEl) { return seriesEl.querySelectorAll('.slide'); }
 
-  function showSlide(index) {
-    const series = getSeries(currentSeries);
-    const slides = getSlides(series);
+  function showVfxSlide(index) {
+    const series = getSeries(0);
+    const slides = series.querySelectorAll('.slide');
     if (!slides.length) return;
     slides.forEach(s => s.classList.remove('active', 'exit'));
     currentSlide = (index + slides.length) % slides.length;
     slides[currentSlide].classList.add('active');
-    document.querySelector('.current').textContent = currentSlide + 1;
-    document.querySelector('.total').textContent = slides.length;
+    const counter = document.querySelector('.vfx-counter');
+    if (counter) {
+      counter.querySelector('.current').textContent = currentSlide + 1;
+      counter.querySelector('.total').textContent = slides.length;
+    }
   }
 
   function switchSeries(index) {
@@ -371,25 +513,127 @@ document.addEventListener('DOMContentLoaded', function() {
     getSeries(index).classList.add('active');
     document.querySelectorAll('.series-link')[index].classList.add('active');
     const isVfx = getSeries(index).classList.contains('vfx-series');
-    document.querySelector('.slide-counter').style.display = isVfx ? 'none' : 'block';
-    document.querySelector('.nav-btn.prev').style.display = isVfx ? 'none' : 'block';
-    document.querySelector('.nav-btn.next').style.display = isVfx ? 'none' : 'block';
-    if (!isVfx) showSlide(0);
+    const counter = document.querySelector('.vfx-counter');
+    const prevBtn = document.querySelector('.gallery-container > .nav-btn.prev');
+    const nextBtn = document.querySelector('.gallery-container > .nav-btn.next');
+    if (counter) counter.style.display = isVfx ? 'block' : 'none';
+    if (prevBtn) prevBtn.style.display = isVfx ? 'block' : 'none';
+    if (nextBtn) nextBtn.style.display = isVfx ? 'block' : 'none';
+    if (isVfx) showVfxSlide(0);
   }
 
-  document.querySelector('.next').addEventListener('click', () => showSlide(currentSlide + 1));
-  document.querySelector('.prev').addEventListener('click', () => showSlide(currentSlide - 1));
+  const mainPrev = document.querySelector('.gallery-container > .nav-btn.prev');
+  const mainNext = document.querySelector('.gallery-container > .nav-btn.next');
+  if (mainNext) mainNext.addEventListener('click', () => showVfxSlide(currentSlide + 1));
+  if (mainPrev) mainPrev.addEventListener('click', () => showVfxSlide(currentSlide - 1));
 
   document.querySelectorAll('.series-link').forEach((link, i) => {
     link.addEventListener('click', e => { e.preventDefault(); switchSeries(i); });
   });
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight') showSlide(currentSlide + 1);
-    if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+  switchSeries(0);
+
+  function initAlbum(albumItem) {
+   const counter = document.querySelector('.vfx-counter');
+  const prevBtn = document.querySelector('.vfx-nav.prev');
+  const nextBtn = document.querySelector('.vfx-nav.next');
+    const current = albumItem.querySelector('.current');
+    const total = albumItem.querySelector('.total');
+    let index = 0;
+
+    if (total) total.textContent = slides.length;
+
+    function showSlide(i) {
+      slides.forEach(s => s.classList.remove('active'));
+      index = (i + slides.length) % slides.length;
+      slides[index].classList.add('active');
+      if (current) current.textContent = index + 1;
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
+    showSlide(0);
+    return { showSlide };
+  }
+
+  const albumNames = document.querySelectorAll('.album-name[data-album]');
+  const albumGalleries = document.querySelectorAll('.album-gallery[data-album]');
+  const albumControllers = [];
+
+  albumGalleries.forEach((gallery, i) => {
+    const slides = gallery.querySelectorAll('.slide');
+    const prevBtn = gallery.querySelector('.nav-btn.prev');
+    const nextBtn = gallery.querySelector('.nav-btn.next');
+    const current = gallery.querySelector('.current');
+    const total = gallery.querySelector('.total');
+    let index = 0;
+    if (total) total.textContent = slides.length;
+    function showSlide(n) {
+      slides.forEach(s => s.classList.remove('active'));
+      index = (n + slides.length) % slides.length;
+      slides[index].classList.add('active');
+      if (current) current.textContent = index + 1;
+    }
+   if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
+if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
+
+let touchStartX = null;
+gallery.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+
+gallery.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) showSlide(index + 1);
+    else showSlide(index - 1);
+  }
+  touchStartX = null;
+}, { passive: true });
+
+showSlide(0);
+albumControllers.push({ showSlide, getIndex: () => index });
   });
 
-  showSlide(0);
+  let openIndex = null;
+
+  function openAlbum(i) {
+    albumGalleries.forEach((g, j) => {
+      g.classList.toggle('open', j === i);
+    });
+    albumNames.forEach((n, j) => {
+      n.classList.toggle('active', j === i);
+    });
+    openIndex = i;
+    const trail = document.getElementById('trailSection');
+    if (trail) {
+      trail.style.transition = 'margin-top 0.5s ease';
+      trail.style.marginTop = '4rem';
+    }
+  }
+document.addEventListener('keydown', e => {
+    if (openIndex === null) return;
+    const controller = albumControllers[openIndex];
+    if (!controller) return;
+    if (e.key === 'ArrowRight') controller.showSlide(controller.getIndex() + 1);
+    if (e.key === 'ArrowLeft') controller.showSlide(controller.getIndex() - 1);
+  });
+
+  albumNames.forEach((name, i) => {
+    name.addEventListener('click', () => openAlbum(i));
+    if (window.matchMedia('(hover: hover)').matches) {
+      name.addEventListener('mouseenter', () => openAlbum(i));
+    }
+  });
+
+  function animateTrailDown() {
+    const trail = document.getElementById('trailSection');
+    if (trail) {
+      trail.style.transition = 'margin-top 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+      trail.style.marginTop = '4rem';
+    }
+  }
 
   const trailSection = document.getElementById('trailSection');
   const trailHint = document.getElementById('trailHint');
@@ -397,18 +641,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (!imgs.length) return;
 
+  const shuffled = imgs.sort(() => Math.random() - 0.5);
   let imgIndex = 0;
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
   const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 80;
 
-  function spawnImage(x, y) {
+ function spawnImage(x, y) {
     const rect = trailSection.getBoundingClientRect();
     const localX = x - rect.left;
     const localY = y - rect.top;
-    const img = imgs[imgIndex % imgs.length];
-    imgIndex++;
+    const img = shuffled[imgIndex % shuffled.length];    imgIndex++;
     const offsetX = (Math.random() - 0.5) * 30;
     const offsetY = (Math.random() - 0.5) * 30;
     img.style.left = (localX - 220 + offsetX) + 'px';
