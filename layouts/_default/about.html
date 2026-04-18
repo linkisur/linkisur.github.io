@@ -35,7 +35,7 @@
   font-size: 0.85rem;
   color: #888;
   text-decoration: none;
-  border: 4px dashed #555;
+  border: 4px dashed var(--accent);
   padding: 0.6rem 1rem;
   transition: color 0.2s, border-color 0.2s;
   letter-spacing: 0.05em;
@@ -48,8 +48,49 @@
   width: 18px;
   height: 18px;
 }
-
+.now-watching {
+  margin-top: 2.5rem;
+}
+.now-watching-title {
+  font-family: 'Fira Code', monospace;
+  font-size: .9rem;
+  color: #555;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+.letterboxd-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #888;
+  text-decoration: none;
+  border: 4px dashed var(--accent);
+  padding: 0.6rem 1rem;
+  transition: color 0.2s, border-color 0.2s;
+  letter-spacing: 0.05em;
+}
+.letterboxd-link:hover {
+  color: #ffb86c;
+  border-color: #ffb86c;
+}
+.lb-icon {
+  width: 18px;
+  height: 18px;
+}
 </style>
+<div class="now-watching">
+    <h2 class="now-watching-title">Now Watching...</h2>
+    <a href="https://letterboxd.com/linkisur" target="_blank" class="letterboxd-link">
+      <svg class="lb-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0zm-6 0a10 10 0 1 1 20 0A10 10 0 0 1 2 12z"/>
+      </svg>
+      @linkisur on Letterboxd
+    </a>
+  </div>
 </div>
 </article>
 {{ end }}
