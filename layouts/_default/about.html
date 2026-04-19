@@ -81,6 +81,79 @@
   width: 18px;
   height: 18px;
 }
+.contact-section {
+  margin-top: 3rem;
+}
+.contact-title {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.2rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+}
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-width: 500px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.form-group label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.form-group input,
+.form-group textarea {
+  background: transparent;
+  border: 1px solid #333;
+  color: #ccc;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.8rem;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #444;
+}
+.contact-submit {
+  background: transparent;
+  border: 2px dashed var(--accent);
+  color: var(--accent);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: background 0.2s, color 0.2s;
+  align-self: flex-start;
+}
+.contact-submit:hover {
+  background: var(--accent);
+  color: #1a1a1d;
+}
+.contact-subtitle {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.15em;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+}
 </style>
 <div class="now-watching">
     <h2 class="now-watching-title">Now Watching...</h2>
@@ -90,6 +163,25 @@
       </svg>
       @linkisur on Letterboxd
     </a>
+  </div>
+  <div class="contact-section">
+    <h2 class="contact-title">GET IN TOUCH...</h2>
+    <p class="contact-subtitle">CV on request</p>
+    <form action="https://formspree.io/f/mojyladj" method="POST" class="contact-form">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required placeholder="Your name" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com" />
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Your message..." rows="5"></textarea>
+      </div>
+      <button type="submit" class="contact-submit">Send</button>
+    </form>
   </div>
 </div>
 </article>
