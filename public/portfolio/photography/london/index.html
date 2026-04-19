@@ -184,9 +184,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <article class="post">
-  <h1 class="post-title">
-    <a href="../../../portfolio/photography/london/">London</a>
-  </h1>
+  <div class="post-header-row">
+    <h1 class="post-title">
+      <a href="../../../portfolio/photography/london/">London</a>
+    </h1>
+    <a href="https://www.instagram.com/linkisur" target="_blank" class="header-instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+      </svg>
+    </a>
+  </div>
 
 
 
@@ -213,6 +222,29 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
+  .post-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+.header-instagram {
+  color: #888;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  padding-bottom: 15px;
+}
+.header-instagram:hover { color: var(--accent); }
+.header-instagram svg {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 768px) {
+  .post-header-row {
+    flex-wrap: wrap;
+  }
+}
 .portfolio-wrap { position: relative; width: 100%; }
 .vimeo-wrap {
   position: relative;

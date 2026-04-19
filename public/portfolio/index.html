@@ -184,9 +184,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <article class="post">
-  <h1 class="post-title">
-    <a href="../portfolio/">Portfolio</a>
-  </h1>
+  <div class="post-header-row">
+    <h1 class="post-title">
+      <a href="../portfolio/">Portfolio</a>
+    </h1>
+   <a href="https://www.instagram.com/linkisur" target="_blank" class="header-instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+      </svg>
+      @linkisur
+    </a>
+  </div>
 
 
 
@@ -401,6 +411,41 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <style>
+  .post-header-row {
+  position: relative;
+}
+.post-header-row .post-title {
+  width: 100%;
+}
+.header-instagram {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: #888;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.header-instagram {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: #888;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+.header-instagram:hover { color: var(--accent); }
+.header-instagram svg {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 768px) {
+  .post-header-row {
+  position: relative;
+}
+}
 .portfolio-wrap { position: relative; width: 100%; }
 .vimeo-wrap {
   position: relative;
