@@ -38,7 +38,7 @@ relativeURLs = true
         url = "/about"
         weight = 2
       [[languages.en.menu.main]]
-        identifier = "posts"
-        name = "Posts"
-        url = "/posts"
-        weight = 3
+          identifier = "guestbook"
+          name = "Guestbook"
+          url = "/guestbook"
+          weight = 3
