@@ -297,6 +297,13 @@
   color: #555;
   letter-spacing: 0.1em;
 }
+@media (max-width: 768px) {
+  .slide-counter {
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.65rem;
+  }
+}
 
 .trail-section {
   position: relative;
@@ -409,40 +416,41 @@
     slides[0].classList.add('active');
     slides[0].style.opacity = '1';
 
-    function showSlide(n) {
-      if (animating) return;
-      const newIndex = (n + slides.length) % slides.length;
-      if (newIndex === index) return;
-      animating = true;
+  function showSlide(n) {
+  if (animating) return;
+  const newIndex = (n + slides.length) % slides.length;
+  if (newIndex === index) return;
+  animating = true;
 
-      const prev = slides[index];
-      const next = slides[newIndex];
+  const prev = slides[index];
+  const next = slides[newIndex];
+  const goingForward = n > index || (index === slides.length - 1 && newIndex === 0);
 
-      next.style.transition = 'none';
-      next.style.transform = 'translateX(-100%)';
-      next.style.opacity = '1';
-      next.classList.add('active');
+  next.style.transition = 'none';
+  next.style.transform = goingForward ? 'translateX(-100%)' : 'translateX(100%)';
+  next.style.opacity = '1';
+  next.classList.add('active');
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          next.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-          next.style.transform = 'translateX(0)';
-          prev.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-          prev.style.transform = 'translateX(100%)';
-        });
-      });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      next.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      next.style.transform = 'translateX(0)';
+      prev.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      prev.style.transform = goingForward ? 'translateX(100%)' : 'translateX(-100%)';
+    });
+  });
 
-      setTimeout(() => {
-        prev.classList.remove('active');
-        prev.style.transition = 'none';
-        prev.style.transform = '';
-        prev.style.opacity = '0';
-        animating = false;
-      }, 420);
+  setTimeout(() => {
+    prev.classList.remove('active');
+    prev.style.transition = 'none';
+    prev.style.transform = '';
+    prev.style.opacity = '0';
+    animating = false;
+  }, 420);
 
-      index = newIndex;
-      if (currentEl) currentEl.textContent = index + 1;
-    }
+  index = newIndex;
+  if (currentEl) currentEl.textContent = index + 1;
+}
 
     if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
     if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
