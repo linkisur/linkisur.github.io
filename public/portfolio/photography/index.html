@@ -523,9 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .trail-img {
   position: absolute;
-  width: 440px;
-  height: 320px;
-  object-fit: contain;
+  object-fit: cover;
   opacity: 0;
   pointer-events: none;
   transform-origin: center center;
@@ -694,26 +692,61 @@ document.addEventListener('keydown', e => {
 
   if (!imgs.length) return;
 
-  const shuffled = imgs.sort(() => Math.random() - 0.5);
+  const shuffled = [];
+let loaded = 0;
+imgs.forEach(img => {
+  const i = new Image();
+  i.onload = () => {
+    img._isHorizontal = i.naturalWidth >= i.naturalHeight;
+    loaded++;
+    if (loaded === imgs.length) {
+      const horizontal = imgs.filter(i => i._isHorizontal);
+      const vertical = imgs.filter(i => !i._isHorizontal);
+      const hShuffled = horizontal.sort(() => Math.random() - 0.5);
+      const vShuffled = vertical.sort(() => Math.random() - 0.5);
+      shuffled.push(...hShuffled, ...vShuffled);
+    }
+  };
+  i.src = img.src;
+});
   let imgIndex = 0;
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
-  const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 80;
+const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 15 : 25;
 
- function spawnImage(x, y) {
+function spawnImage(x, y) {
     const rect = trailSection.getBoundingClientRect();
+    const sectionW = trailSection.offsetWidth;
+    const sectionH = trailSection.offsetHeight;
     const localX = x - rect.left;
     const localY = y - rect.top;
-    const img = shuffled[imgIndex % shuffled.length];    imgIndex++;
-    const offsetX = (Math.random() - 0.5) * 30;
-    const offsetY = (Math.random() - 0.5) * 30;
-    img.style.left = (localX - 220 + offsetX) + 'px';
-    img.style.top = (localY - 160 + offsetY) + 'px';
-    img.style.transform = 'rotate(0deg) scale(1)';
+    if (localX < 0 || localY < 0 || localX > sectionW || localY > sectionH) return;
+    const img = shuffled[imgIndex % shuffled.length];
+    imgIndex++;
+    const isHorizontal = img._isHorizontal;
+    const w = isHorizontal ? 400 : 240;
+    const h = isHorizontal ? 280 : 360;
+    img.style.width = w + 'px';
+    img.style.height = h + 'px';
+    const clampedX = Math.max(0, Math.min(localX - w/2, sectionW - w));
+    const clampedY = Math.max(0, Math.min(localY - h/2, sectionH - h));
+    img.style.left = clampedX + 'px';
+    img.style.top = clampedY + 'px';
+    img.style.transform = 'scale(1)';
     img.style.opacity = '1';
     img.style.transition = 'none';
     img.style.zIndex = imgIndex;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        img.style.opacity = '1';
+      });
+    });
+    
+    
+      
+      
+    
   }
 
   trailSection.addEventListener('mousemove', e => {
