@@ -313,8 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.album-slides { position: absolute; inset: 0; }
-.album-slides .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; }
+.album-slides .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s ease; }
 .album-slides .slide.active { opacity: 1; }
 .vimeo-wrap iframe {
   width: 100%;
@@ -418,6 +417,8 @@ document.addEventListener('DOMContentLoaded', function() {
   overflow: hidden;
   cursor: none;
   touch-action: none;
+  border: 4px solid var(--accent);
+  box-sizing: border-box;
 }
 
 .trail-hint {
@@ -430,19 +431,21 @@ document.addEventListener('DOMContentLoaded', function() {
   color: #333;
   letter-spacing: 0.2em;
   pointer-events: none;
-  transition: opacity 0.6s ease;
+  z-index: 0;
 }
 
 .trail-images { position: absolute; inset: 0; pointer-events: none; }
 
 .trail-img {
   position: absolute;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 0;
   pointer-events: none;
   transform-origin: center center;
   will-change: transform, opacity;
-  border: none;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
   background: none;
 }
 .vfx-counter { display: none; }
@@ -508,12 +511,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (total) total.textContent = slides.length;
 
-    function showSlide(i) {
-      slides.forEach(s => s.classList.remove('active'));
-      index = (i + slides.length) % slides.length;
-      slides[index].classList.add('active');
-      if (current) current.textContent = index + 1;
-    }
+  function showSlide(n) {
+  const newIndex = (n + slides.length) % slides.length;
+  if (newIndex === index) return;
+  slides[index].classList.remove('active');
+  index = newIndex;
+  slides[index].classList.add('active');
+  if (current) current.textContent = index + 1;
+}
 
     if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
     if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
@@ -533,12 +538,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const total = gallery.querySelector('.total');
     let index = 0;
     if (total) total.textContent = slides.length;
-    function showSlide(n) {
-      slides.forEach(s => s.classList.remove('active'));
-      index = (n + slides.length) % slides.length;
-      slides[index].classList.add('active');
-      if (current) current.textContent = index + 1;
-    }
+   function showSlide(n) {
+  const newIndex = (n + slides.length) % slides.length;
+  if (newIndex === index) return;
+  const prev_slide = slides[index];
+  const next_slide = slides[newIndex];
+  
+  next_slide.style.transition = 'none';
+  next_slide.style.transform = 'translateX(-100%)';
+  next_slide.style.opacity = '1';
+  next_slide.classList.add('active');
+  
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      next_slide.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+      next_slide.style.transform = 'translateX(0)';
+      prev_slide.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+      prev_slide.style.transform = 'translateX(100%)';
+    });
+  });
+  
+  setTimeout(() => {
+    prev_slide.classList.remove('active');
+    prev_slide.style.transition = 'none';
+    prev_slide.style.transform = '';
+    prev_slide.style.opacity = '0';
+  }, 450);
+  
+  index = newIndex;
+  if (current) current.textContent = index + 1;
+}
    if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
 if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
 
@@ -557,8 +586,9 @@ gallery.addEventListener('touchend', e => {
   touchStartX = null;
 }, { passive: true });
 
-showSlide(0);
-albumControllers.push({ showSlide, getIndex: () => index });
+slides[0].classList.add('active');
+slides[0].style.opacity = '1';
+if (current) current.textContent = 1;albumControllers.push({ showSlide, getIndex: () => index });
   });
 
   let openIndex = null;
@@ -627,51 +657,48 @@ imgs.forEach(img => {
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
-const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 15 : 25;
-
+const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 60;
 function spawnImage(x, y) {
-    const rect = trailSection.getBoundingClientRect();
     const sectionW = trailSection.offsetWidth;
     const sectionH = trailSection.offsetHeight;
-    const localX = x - rect.left;
-    const localY = y - rect.top;
-    if (localX < 0 || localY < 0 || localX > sectionW || localY > sectionH) return;
+    if (x < 0 || y < 0 || x > sectionW || y > sectionH) return;
     const img = shuffled[imgIndex % shuffled.length];
     imgIndex++;
     const isHorizontal = img._isHorizontal;
-    const w = isHorizontal ? 400 : 240;
-    const h = isHorizontal ? 280 : 360;
+    const w = isHorizontal ? 400 : 220;
+    const h = isHorizontal ? 280 : 300;
+
     img.style.width = w + 'px';
     img.style.height = h + 'px';
-    const clampedX = Math.max(0, Math.min(localX - w/2, sectionW - w));
-    const clampedY = Math.max(0, Math.min(localY - h/2, sectionH - h));
+    const clampedX = Math.max(0, Math.min(x - w/2, sectionW - w));
+    const clampedY = Math.max(0, Math.min(y - h/2, sectionH - h));
     img.style.left = clampedX + 'px';
     img.style.top = clampedY + 'px';
     img.style.transform = 'scale(1)';
-    img.style.opacity = '1';
-    img.style.transition = 'none';
+    img.style.opacity = '0';
+    img.style.transition = 'opacity 0.2s ease';
     img.style.zIndex = imgIndex;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         img.style.opacity = '1';
       });
     });
-    
-    
-      
-      
-    
+    clearTimeout(img._fadeTimer);
+    img._fadeTimer = setTimeout(() => {
+      img.style.transition = 'opacity 0.3s ease';
+      img.style.opacity = '0';
+    }, 1500);
   }
 
   trailSection.addEventListener('mousemove', e => {
     if (!hasMovedOnce) {
       hasMovedOnce = true;
-      trailHint.style.opacity = '0';
+    
     }
     if (lastX === null) {
       lastX = e.clientX;
       lastY = e.clientY;
-      spawnImage(e.clientX, e.clientY);
+      spawnImage(e.offsetX, e.offsetY);
       return;
     }
     const dx = e.clientX - lastX;
@@ -680,7 +707,7 @@ function spawnImage(x, y) {
     if (dist >= DISTANCE_THRESHOLD) {
       lastX = e.clientX;
       lastY = e.clientY;
-      spawnImage(e.clientX, e.clientY);
+      spawnImage(e.offsetX, e.offsetY);
     }
   });
 
@@ -695,12 +722,13 @@ function spawnImage(x, y) {
     const touch = e.changedTouches[0];
     if (!hasMovedOnce) {
       hasMovedOnce = true;
-      trailHint.style.opacity = '0';
+     
     }
     if (lastX === null) {
       lastX = touch.clientX;
       lastY = touch.clientY;
-      spawnImage(touch.clientX, touch.clientY);
+      const rect = trailSection.getBoundingClientRect();
+spawnImage(touch.clientX - rect.left, touch.clientY - rect.top);
       return;
     }
     const dx = touch.clientX - lastX;
@@ -709,7 +737,8 @@ function spawnImage(x, y) {
     if (dist >= DISTANCE_THRESHOLD) {
       lastX = touch.clientX;
       lastY = touch.clientY;
-      spawnImage(touch.clientX, touch.clientY);
+      const rect = trailSection.getBoundingClientRect();
+spawnImage(touch.clientX - rect.left, touch.clientY - rect.top);
     }
   }, { passive: false, capture: true });
 
