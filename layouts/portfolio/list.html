@@ -77,7 +77,7 @@
         </div>
         <button class="nav-btn prev">&#8592;</button>
         <button class="nav-btn next">&#8594;</button>
-        <div class="slide-counter">
+        <div class="album-counter">
           <span class="current">1</span> / <span class="total">1</span>
         </div>
       </div>
@@ -181,16 +181,46 @@
 
 .album-sep { color: #444; font-family: 'Fira Code', monospace; font-size: 0.85rem; }
 
-.album-gallery-panel { width: 100%; }
+.album-gallery-panel { 
+  width: 100%;
+
+ }
 
 .album-gallery {
   display: none;
   position: relative;
   width: 100%;
   height: 70vh;
-  overflow: hidden;
-  margin-bottom: 1rem;
+  overflow: visible;
+  margin-bottom: 0;
 }
+
+.album-slides { 
+  position: absolute; 
+  inset: 0; 
+  overflow: hidden;
+  clip-path: inset(0);
+}
+
+.album-counter {
+  display: none;
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  z-index: 20;
+}
+.album-slides { 
+  position: absolute; 
+  inset: 0; 
+  overflow: hidden;
+  clip-path: inset(0);
+}
+
 
 .album-gallery.open {
   display: block;
@@ -202,7 +232,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.album-slides { position: absolute; inset: 0; overflow: hidden; }
 .album-slides .slide { position: absolute; inset: 0; opacity: 0; }
 .album-slides .slide.active { opacity: 1; }
 .vimeo-wrap iframe {
@@ -233,8 +262,9 @@
   border-bottom: 2px solid #ffb86c;
   padding-bottom: 0.75rem;
 }
-.series { display: none; width: 100%; height: 100%; }
-.series.active { display: block; }
+.series { display: none; width: 100%; }
+.series.active { display: block; width: 100%; }
+.series.vfx-series { height: 100%; }
 .series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; }
 .gallery-container {
   position: relative;
@@ -244,12 +274,11 @@
   background: transparent;
 }
 
-.gallery-container:has(.vfx-series.active) {
-  background: transparent;
+.gallery-container:has(.series.active:not(.vfx-series)) {
+  overflow: visible;
   height: auto;
-  border: none;
-  padding: 2rem 0;
 }
+
 
 .mobile-hint { display: none; }
 @media (max-width: 768px) {
@@ -296,6 +325,7 @@
   font-size: 0.75rem;
   color: #555;
   letter-spacing: 0.1em;
+  z-index: 10;
 }
 @media (max-width: 768px) {
   .slide-counter {
@@ -381,7 +411,7 @@
     const counter = document.querySelector('.vfx-counter');
     const prevBtn = document.querySelector('.gallery-container > .nav-btn.prev');
     const nextBtn = document.querySelector('.gallery-container > .nav-btn.next');
-    if (counter) counter.style.display = isVfx ? 'block' : 'none';
+    if (counter) counter.style.display = 'none';
     if (prevBtn) prevBtn.style.display = isVfx ? 'block' : 'none';
     if (nextBtn) nextBtn.style.display = isVfx ? 'block' : 'none';
     if (isVfx) showVfxSlide(0);
@@ -461,13 +491,13 @@
       if (touchStartX === null) return;
       const diff = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 50) {
-        if (diff > 0) showSlide(index + 1);
-        else showSlide(index - 1);
+        if (diff > 0) showSlide(index - 1);
+        else showSlide(index + 1);
       }
       touchStartX = null;
     }, { passive: true });
 
-    albumControllers.push({ showSlide, getIndex: () => index });
+   albumControllers.push({ showSlide, getIndex: () => index });
   });
 
   let openIndex = null;
@@ -476,12 +506,18 @@
     albumGalleries.forEach((g, j) => g.classList.toggle('open', j === i));
     albumNames.forEach((n, j) => n.classList.toggle('active', j === i));
     openIndex = i;
+  document.querySelectorAll('.album-counter').forEach((c, j) => {
+      c.style.display = j === i ? 'block' : 'none';
+    });
     const trail = document.getElementById('trailSection');
     if (trail) {
       trail.style.transition = 'margin-top 0.5s ease';
       trail.style.marginTop = '4rem';
     }
   }
+
+  openAlbum(0);
+
 
   document.addEventListener('keydown', e => {
     if (openIndex === null) return;

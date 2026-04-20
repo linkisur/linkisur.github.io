@@ -378,16 +378,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .album-sep { color: #444; font-family: 'Fira Code', monospace; font-size: 0.85rem; }
 
-.album-gallery-panel { width: 100%; }
+.album-gallery-panel { 
+  width: 100%;
+
+ }
 
 .album-gallery {
   display: none;
   position: relative;
   width: 100%;
   height: 70vh;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 1rem;
 }
+.album-slides { 
+  position: absolute; 
+  inset: 0; 
+  overflow: hidden;
+  clip-path: inset(0);
+}
+
 
 .album-gallery.open {
   display: block;
@@ -399,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.album-slides .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s ease; }
+.album-slides .slide { position: absolute; inset: 0; opacity: 0; }
 .album-slides .slide.active { opacity: 1; }
 .vimeo-wrap iframe {
   width: 100%;
@@ -429,8 +439,9 @@ document.addEventListener('DOMContentLoaded', function() {
   border-bottom: 2px solid #ffb86c;
   padding-bottom: 0.75rem;
 }
-.series { display: none; width: 100%; height: 100%; }
-.series.active { display: block; }
+.series { display: none; width: 100%; }
+.series.active { display: block; width: 100%; }
+.series.vfx-series { height: 100%; }
 .series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; }
 .gallery-container {
   position: relative;
@@ -440,6 +451,10 @@ document.addEventListener('DOMContentLoaded', function() {
   background: transparent;
 }
 
+.gallery-container:has(.series.active:not(.vfx-series)) {
+  height: auto;
+  overflow: visible;
+}
 .gallery-container:has(.vfx-series.active) {
   background: transparent;
   height: auto;
@@ -492,6 +507,14 @@ document.addEventListener('DOMContentLoaded', function() {
   font-size: 0.75rem;
   color: #555;
   letter-spacing: 0.1em;
+  z-index: 10;
+}
+@media (max-width: 768px) {
+  .slide-counter {
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.65rem;
+  }
 }
 
 .trail-section {
@@ -505,6 +528,17 @@ document.addEventListener('DOMContentLoaded', function() {
   touch-action: none;
   border: 4px solid var(--accent);
   box-sizing: border-box;
+}
+.album-counter {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  z-index: 999;
+  pointer-events: none;
 }
 
 .trail-hint {
@@ -570,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const counter = document.querySelector('.vfx-counter');
     const prevBtn = document.querySelector('.gallery-container > .nav-btn.prev');
     const nextBtn = document.querySelector('.gallery-container > .nav-btn.next');
-    if (counter) counter.style.display = isVfx ? 'block' : 'none';
+    if (counter) counter.style.display = 'none';
     if (prevBtn) prevBtn.style.display = isVfx ? 'block' : 'none';
     if (nextBtn) nextBtn.style.display = isVfx ? 'block' : 'none';
     if (isVfx) showVfxSlide(0);
@@ -587,105 +621,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
   switchSeries(0);
 
-  function initAlbum(albumItem) {
-   const counter = document.querySelector('.vfx-counter');
-  const prevBtn = document.querySelector('.vfx-nav.prev');
-  const nextBtn = document.querySelector('.vfx-nav.next');
-    const current = albumItem.querySelector('.current');
-    const total = albumItem.querySelector('.total');
-    let index = 0;
-
-    if (total) total.textContent = slides.length;
-
-  function showSlide(n) {
-  const newIndex = (n + slides.length) % slides.length;
-  if (newIndex === index) return;
-  slides[index].classList.remove('active');
-  index = newIndex;
-  slides[index].classList.add('active');
-  if (current) current.textContent = index + 1;
-}
-
-    if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
-    if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
-    showSlide(0);
-    return { showSlide };
-  }
-
   const albumNames = document.querySelectorAll('.album-name[data-album]');
   const albumGalleries = document.querySelectorAll('.album-gallery[data-album]');
   const albumControllers = [];
 
-  albumGalleries.forEach((gallery, i) => {
-    const slides = gallery.querySelectorAll('.slide');
+  albumGalleries.forEach((gallery) => {
+    const slides = Array.from(gallery.querySelectorAll('.slide'));
     const prevBtn = gallery.querySelector('.nav-btn.prev');
     const nextBtn = gallery.querySelector('.nav-btn.next');
-    const current = gallery.querySelector('.current');
-    const total = gallery.querySelector('.total');
+    const currentEl = gallery.querySelector('.current');
+    const totalEl = gallery.querySelector('.total');
     let index = 0;
-    if (total) total.textContent = slides.length;
-   function showSlide(n) {
+    let animating = false;
+
+    if (totalEl) totalEl.textContent = slides.length;
+
+    slides[0].classList.add('active');
+    slides[0].style.opacity = '1';
+
+  function showSlide(n) {
+  if (animating) return;
   const newIndex = (n + slides.length) % slides.length;
   if (newIndex === index) return;
-  const prev_slide = slides[index];
-  const next_slide = slides[newIndex];
-  
-  next_slide.style.transition = 'none';
-  next_slide.style.transform = 'translateX(-100%)';
-  next_slide.style.opacity = '1';
-  next_slide.classList.add('active');
-  
+  animating = true;
+
+  const prev = slides[index];
+  const next = slides[newIndex];
+  const goingForward = n > index || (index === slides.length - 1 && newIndex === 0);
+
+  next.style.transition = 'none';
+  next.style.transform = goingForward ? 'translateX(-100%)' : 'translateX(100%)';
+  next.style.opacity = '1';
+  next.classList.add('active');
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      next_slide.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
-      next_slide.style.transform = 'translateX(0)';
-      prev_slide.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
-      prev_slide.style.transform = 'translateX(100%)';
+      next.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      next.style.transform = 'translateX(0)';
+      prev.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      prev.style.transform = goingForward ? 'translateX(100%)' : 'translateX(-100%)';
     });
   });
-  
+
   setTimeout(() => {
-    prev_slide.classList.remove('active');
-    prev_slide.style.transition = 'none';
-    prev_slide.style.transform = '';
-    prev_slide.style.opacity = '0';
-  }, 450);
-  
+    prev.classList.remove('active');
+    prev.style.transition = 'none';
+    prev.style.transform = '';
+    prev.style.opacity = '0';
+    animating = false;
+  }, 420);
+
   index = newIndex;
-  if (current) current.textContent = index + 1;
+  if (currentEl) currentEl.textContent = index + 1;
 }
-   if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
-if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
 
-let touchStartX = null;
-gallery.addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
-}, { passive: true });
+    if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); showSlide(index - 1); });
 
-gallery.addEventListener('touchend', e => {
-  if (touchStartX === null) return;
-  const diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) showSlide(index + 1);
-    else showSlide(index - 1);
-  }
-  touchStartX = null;
-}, { passive: true });
+    let touchStartX = null;
+    gallery.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    gallery.addEventListener('touchend', e => {
+      if (touchStartX === null) return;
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) showSlide(index - 1);
+        else showSlide(index + 1);
+      }
+      touchStartX = null;
+    }, { passive: true });
 
-slides[0].classList.add('active');
-slides[0].style.opacity = '1';
-if (current) current.textContent = 1;albumControllers.push({ showSlide, getIndex: () => index });
+    albumControllers.push({ showSlide, getIndex: () => index });
   });
 
   let openIndex = null;
 
   function openAlbum(i) {
-    albumGalleries.forEach((g, j) => {
-      g.classList.toggle('open', j === i);
-    });
-    albumNames.forEach((n, j) => {
-      n.classList.toggle('active', j === i);
-    });
+    albumGalleries.forEach((g, j) => g.classList.toggle('open', j === i));
+    albumNames.forEach((n, j) => n.classList.toggle('active', j === i));
     openIndex = i;
     const trail = document.getElementById('trailSection');
     if (trail) {
@@ -693,7 +705,8 @@ if (current) current.textContent = 1;albumControllers.push({ showSlide, getIndex
       trail.style.marginTop = '4rem';
     }
   }
-document.addEventListener('keydown', e => {
+
+  document.addEventListener('keydown', e => {
     if (openIndex === null) return;
     const controller = albumControllers[openIndex];
     if (!controller) return;
@@ -708,14 +721,6 @@ document.addEventListener('keydown', e => {
     }
   });
 
-  function animateTrailDown() {
-    const trail = document.getElementById('trailSection');
-    if (trail) {
-      trail.style.transition = 'margin-top 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-      trail.style.marginTop = '4rem';
-    }
-  }
-
   const trailSection = document.getElementById('trailSection');
   const trailHint = document.getElementById('trailHint');
   const imgs = Array.from(document.querySelectorAll('.trail-img'));
@@ -723,28 +728,28 @@ document.addEventListener('keydown', e => {
   if (!imgs.length) return;
 
   const shuffled = [];
-let loaded = 0;
-imgs.forEach(img => {
-  const i = new Image();
-  i.onload = () => {
-    img._isHorizontal = i.naturalWidth >= i.naturalHeight;
-    loaded++;
-    if (loaded === imgs.length) {
-      const horizontal = imgs.filter(i => i._isHorizontal);
-      const vertical = imgs.filter(i => !i._isHorizontal);
-      const hShuffled = horizontal.sort(() => Math.random() - 0.5);
-      const vShuffled = vertical.sort(() => Math.random() - 0.5);
-      shuffled.push(...hShuffled, ...vShuffled);
-    }
-  };
-  i.src = img.src;
-});
+  let loaded = 0;
+  imgs.forEach(img => {
+    const i = new Image();
+    i.onload = () => {
+      img._isHorizontal = i.naturalWidth >= i.naturalHeight;
+      loaded++;
+      if (loaded === imgs.length) {
+        const horizontal = imgs.filter(i => i._isHorizontal);
+        const vertical = imgs.filter(i => !i._isHorizontal);
+        shuffled.push(...horizontal.sort(() => Math.random() - 0.5), ...vertical.sort(() => Math.random() - 0.5));
+      }
+    };
+    i.src = img.src;
+  });
+
   let imgIndex = 0;
   let lastX = null;
   let lastY = null;
   let hasMovedOnce = false;
-const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 60;
-function spawnImage(x, y) {
+  const DISTANCE_THRESHOLD = window.matchMedia('(max-width: 768px)').matches ? 30 : 60;
+
+  function spawnImage(x, y) {
     const sectionW = trailSection.offsetWidth;
     const sectionH = trailSection.offsetHeight;
     if (x < 0 || y < 0 || x > sectionW || y > sectionH) return;
@@ -753,21 +758,16 @@ function spawnImage(x, y) {
     const isHorizontal = img._isHorizontal;
     const w = isHorizontal ? 400 : 220;
     const h = isHorizontal ? 280 : 300;
-
     img.style.width = w + 'px';
     img.style.height = h + 'px';
-    const clampedX = Math.max(0, Math.min(x - w/2, sectionW - w));
-    const clampedY = Math.max(0, Math.min(y - h/2, sectionH - h));
-    img.style.left = clampedX + 'px';
-    img.style.top = clampedY + 'px';
+    img.style.left = Math.max(0, Math.min(x - w/2, sectionW - w)) + 'px';
+    img.style.top = Math.max(0, Math.min(y - h/2, sectionH - h)) + 'px';
     img.style.transform = 'scale(1)';
     img.style.opacity = '0';
     img.style.transition = 'opacity 0.2s ease';
     img.style.zIndex = imgIndex;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        img.style.opacity = '1';
-      });
+      requestAnimationFrame(() => { img.style.opacity = '1'; });
     });
     clearTimeout(img._fadeTimer);
     img._fadeTimer = setTimeout(() => {
@@ -777,61 +777,40 @@ function spawnImage(x, y) {
   }
 
   trailSection.addEventListener('mousemove', e => {
-    if (!hasMovedOnce) {
-      hasMovedOnce = true;
-    
-    }
+    if (!hasMovedOnce) hasMovedOnce = true;
     if (lastX === null) {
-      lastX = e.clientX;
-      lastY = e.clientY;
-      spawnImage(e.offsetX, e.offsetY);
-      return;
+      lastX = e.clientX; lastY = e.clientY;
+      spawnImage(e.offsetX, e.offsetY); return;
     }
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    const dist = Math.sqrt((e.clientX-lastX)**2 + (e.clientY-lastY)**2);
     if (dist >= DISTANCE_THRESHOLD) {
-      lastX = e.clientX;
-      lastY = e.clientY;
+      lastX = e.clientX; lastY = e.clientY;
       spawnImage(e.offsetX, e.offsetY);
     }
   });
 
-  trailSection.addEventListener('mouseleave', () => {
-    lastX = null;
-    lastY = null;
-  });
+  trailSection.addEventListener('mouseleave', () => { lastX = null; lastY = null; });
 
   trailSection.addEventListener('touchmove', function(e) {
     e.preventDefault();
     e.stopPropagation();
     const touch = e.changedTouches[0];
-    if (!hasMovedOnce) {
-      hasMovedOnce = true;
-     
-    }
+    if (!hasMovedOnce) hasMovedOnce = true;
+    const rect = trailSection.getBoundingClientRect();
+    const tx = touch.clientX - rect.left;
+    const ty = touch.clientY - rect.top;
     if (lastX === null) {
-      lastX = touch.clientX;
-      lastY = touch.clientY;
-      const rect = trailSection.getBoundingClientRect();
-spawnImage(touch.clientX - rect.left, touch.clientY - rect.top);
-      return;
+      lastX = touch.clientX; lastY = touch.clientY;
+      spawnImage(tx, ty); return;
     }
-    const dx = touch.clientX - lastX;
-    const dy = touch.clientY - lastY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    const dist = Math.sqrt((touch.clientX-lastX)**2 + (touch.clientY-lastY)**2);
     if (dist >= DISTANCE_THRESHOLD) {
-      lastX = touch.clientX;
-      lastY = touch.clientY;
-      const rect = trailSection.getBoundingClientRect();
-spawnImage(touch.clientX - rect.left, touch.clientY - rect.top);
+      lastX = touch.clientX; lastY = touch.clientY;
+      spawnImage(tx, ty);
     }
   }, { passive: false, capture: true });
 
-  trailSection.addEventListener('touchend', () => {
-    lastX = null;
-    lastY = null;
-  });
+  trailSection.addEventListener('touchend', () => { lastX = null; lastY = null; });
 
 })();
 </script>
