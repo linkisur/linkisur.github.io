@@ -47,8 +47,9 @@
 {{ else }}
 <div class="series {{ if eq $i 0 }}active{{ end }}" data-series="{{ $i }}">
 {{ end }}
-  {{ if eq $section.Title "VFX" }}
+{{ if eq $section.Title "VFX" }}
   <div class="vimeo-wrap">
+    <div class="reel-label">Reel</div>
     <iframe src="https://player.vimeo.com/video/1074003887?autoplay=0&title=0&byline=0&portrait=0"
       frameborder="0"
       allow="autoplay; fullscreen; picture-in-picture"
@@ -118,6 +119,14 @@
 .post-header-row .post-title {
   width: 100%;
 }
+@media (min-width: 684px) {
+  .content {
+    padding-top: 0 !important;
+  }
+  .post {
+    padding-top: 0 !important;
+  }
+}
 .header-instagram {
   position: absolute;
   right: 0;
@@ -152,13 +161,24 @@
   position: relative;
   width: 100%;
   max-width: 960px;
-}.album-wrap { width: 100%; }
-
+  padding-top: 0;
+  margin-top: 0;
+}
+.album-wrap { width: 100%; margin-top: -1rem; }
+.reel-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #888;
+  padding: 0.5rem 0;
+  display: inline-block;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
 .album-list {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   flex-wrap: wrap;
 }
 
@@ -266,7 +286,8 @@
 .series { display: none; width: 100%; }
 .series.active { display: block; width: 100%; }
 .series.vfx-series { height: 100%; }
-.series.vfx-series.active { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; }
+.series.vfx-series.active { display: flex; width: 100%; align-items: flex-start; justify-content: flex-start; margin-top: -1.5rem; }
+
 .gallery-container {
   position: relative;
   width: 100%;
@@ -278,6 +299,13 @@
 .gallery-container:has(.series.active:not(.vfx-series)) {
   overflow: visible;
   height: auto;
+}
+
+.gallery-container:has(.vfx-series.active) {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding: 0.5rem 0;
 }
 
 
@@ -530,9 +558,6 @@
 
   albumNames.forEach((name, i) => {
     name.addEventListener('click', () => openAlbum(i));
-    if (window.matchMedia('(hover: hover)').matches) {
-      name.addEventListener('mouseenter', () => openAlbum(i));
-    }
   });
 
   const trailSection = document.getElementById('trailSection');

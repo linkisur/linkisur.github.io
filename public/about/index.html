@@ -275,6 +275,14 @@ document.addEventListener('DOMContentLoaded', function() {
   margin-bottom: 1.5rem;
   font-weight: 400;
 }
+@media (min-width: 684px) {
+  .content {
+    padding-top: 0 !important;
+  }
+  .post {
+    padding-top: 0 !important;
+  }
+}
 .contact-form {
   display: flex;
   flex-direction: column;
@@ -325,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
   transition: background 0.2s, color 0.2s;
   align-self: flex-start;
 }
+
 .contact-submit:hover {
   background: var(--accent);
   color: #1a1a1d;
