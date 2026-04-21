@@ -2,7 +2,7 @@
 <html lang="en">
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=&amp;path=livereload" data-no-instant defer></script>
   
-    <title>Tags :: Hannah Wilk</title>
+    <title>Additional :: Hannah Wilk</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="../tags/" />
+<link rel="canonical" href="../additional/" />
 
 
 
@@ -72,9 +72,9 @@
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Tags">
+<meta property="og:title" content="Additional">
 <meta property="og:description" content="" />
-<meta property="og:url" content="/tags/" />
+<meta property="og:url" content="/additional/" />
 <meta property="og:site_name" content="Hannah Wilk" />
 
   <meta property="og:image" content="/og-image.png">
@@ -86,7 +86,7 @@
 
 
 
-  <link href="../tags/index.xml" rel="alternate" type="application/rss+xml" title="Hannah Wilk" />
+  <link href="../additional/index.xml" rel="alternate" type="application/rss+xml" title="Hannah Wilk" />
 
 
 
@@ -189,14 +189,174 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <div class="content">
     
-  <div class="terms">
-    <h1>Tags</h1>
-    
-    <ul>
-      
-      
-    </ul>
+<article class="post">
+  <h1 class="post-title">
+    <a href="../additional/">Additional</a>
+  </h1>
+</article>
+
+    <div class="misc-wrap">
+  <p class="misc-intro">An assortment of Works in Progress.</p>
+  <div class="misc-list">
+    <span class="misc-item" data-section="coffee">Coffee Journal</span>
   </div>
+
+  <div class="misc-section" id="section-coffee" style="display:none;">
+    <div id="coffee-map"></div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+@media (min-width: 684px) {
+  .content { padding-top: 0 !important; }
+  .post { padding-top: 0 !important; }
+}
+.post-title { margin-bottom: 0 !important; }
+.misc-wrap { width: 100%; padding-top: 25px; }
+.misc-list {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #333;
+  margin-bottom: 2rem;
+}
+.misc-item {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #888;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s, color 0.2s;
+  padding: 0.4rem 1rem;
+border: 1px solid var(--accent);
+  background: transparent;
+  display: inline-block;
+}
+.misc-intro {
+  font-family: 'Fira Code', monospace;
+  font-size: 1rem;
+  color: #ccc;
+  letter-spacing: 0;
+  margin-top: -29px;
+  margin-bottom: 2rem;
+}
+.misc-item:hover {
+  border-color: #555;
+  color: #ccc;
+}
+.misc-item.active {
+  background: #1e1e1e;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#coffee-map {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid #333;
+}
+
+#coffee-map img {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+.leaflet-popup-content-wrapper {
+  background: #1a1a1d;
+  border: 1px solid #333;
+  border-radius: 0;
+  box-shadow: none;
+  color: #ccc;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+}
+.leaflet-popup-tip { background: #1a1a1d; }
+.leaflet-popup-content { margin: 0.6rem 0.8rem; }
+.popup-name {
+  color: var(--accent);
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+.popup-city { color: #555; margin-bottom: 0.3rem; }
+.popup-note { color: #888; }
+.leaflet-container { background: #0d0d0d; }
+
+</style>
+
+<script>
+const SUPABASE_URL = 'https://wwhahzrmyzrjahuoccqj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_4bWGJ3QX0bMK5krmr8ewUA_abXWyWut';
+
+let map;
+let mapInitialized = false;
+
+document.querySelectorAll('.misc-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const section = document.getElementById('section-' + item.dataset.section);
+    const isOpen = item.classList.contains('active');
+    document.querySelectorAll('.misc-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.misc-section').forEach(s => s.style.display = 'none');
+    if (!isOpen) {
+      item.classList.add('active');
+      section.style.display = 'block';
+      if (item.dataset.section === 'coffee' && !mapInitialized) {
+        mapInitialized = true;
+        initMap();
+      } else if (item.dataset.section === 'coffee') {
+        map.invalidateSize();
+      }
+    }
+  });
+});
+
+function initMap() {
+  map = L.map('coffee-map', {
+    center: [51.5, -0.1],
+    zoom: 12,
+    zoomControl: true,
+    scrollWheelZoom: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 19
+  }).addTo(map);
+
+  const coffeeIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:10px;height:10px;background:#eec35e;border-radius:50%;border:2px solid #1a1a1d;"></div>',
+    iconSize: [10, 10],
+    iconAnchor: [5, 5]
+  });
+
+  loadCoffeeShops(coffeeIcon);
+}
+
+async function loadCoffeeShops(coffeeIcon) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/coffee_shops?select=*&order=created_at.desc`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  const shops = await res.json();
+  shops.forEach(shop => {
+    const marker = L.marker([shop.lat, shop.lng], { icon: coffeeIcon }).addTo(map);
+    marker.bindPopup(`
+      <div class="popup-name">${shop.name}</div>
+      <div class="popup-city">${shop.city}</div>
+      ${shop.note ? `<div class="popup-note">${shop.note}</div>` : ''}
+    `);
+  });
+}
+
+</script>
+
+
 
   </div>
 
