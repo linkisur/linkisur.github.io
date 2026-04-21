@@ -44,7 +44,7 @@ relativeURLs = true
           weight = 3
 
       [[languages.en.menu.main]]
-  identifier = "additional"
-  name = "Additional"
-  url = "/additional"
-  weight = 4
+        identifier = "additional"
+        name = "Additional"
+        url = "/additional"
+        weight = 4
