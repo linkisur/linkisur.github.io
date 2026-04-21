@@ -1179,6 +1179,9 @@ let lightboxTouchStartX = null;
 lightbox.addEventListener('touchstart', e => {
   lightboxTouchStartX = e.touches[0].clientX;
 }, { passive: true });
+lightbox.addEventListener('touchmove', e => {
+  e.preventDefault();
+}, { passive: false });
 lightbox.addEventListener('touchend', e => {
   if (lightboxTouchStartX === null) return;
   const diff = lightboxTouchStartX - e.changedTouches[0].clientX;
