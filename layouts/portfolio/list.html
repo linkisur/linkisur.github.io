@@ -109,10 +109,54 @@
   </div>
   {{ end }}
 {{ end }}
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">&#x2715;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev">&#8592;</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+  <button class="lightbox-nav lightbox-next" id="lightboxNext">&#8594;</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
 
 </div>
 
 <style>
+  .lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox.open {
+  display: flex;
+}
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border: none !important;
+}
+.lightbox-close {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10000;
+  line-height: 1;
+  padding: 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.lightbox-close:hover {
+  opacity: 1;
+}
   .post-header-row {
   position: relative;
 }
@@ -163,6 +207,17 @@
   max-width: 960px;
   padding-top: 0;
   margin-top: 0;
+}
+.lightbox-counter {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  pointer-events: none;
 }
 .album-wrap { width: 100%; margin-top: -1rem; }
 .reel-label {
@@ -241,7 +296,23 @@
   overflow: hidden;
   clip-path: inset(0);
 }
-
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10000;
+  padding: 1rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.lightbox-nav:hover { opacity: 1; }
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
 
 .album-gallery.open {
   display: block;
@@ -412,7 +483,13 @@
 (function() {
   let currentSeries = 0;
   let currentSlide = 0;
-
+function updateLightboxCounter() {
+  if (!activeLightboxGallery) return;
+  const controller = albumControllers[Array.from(albumGalleries).indexOf(activeLightboxGallery)];
+  const total = activeLightboxGallery.querySelectorAll('.slide').length;
+  const counter = document.getElementById('lightboxCounter');
+  if (counter && controller) counter.textContent = (controller.getIndex() + 1) + ' / ' + total;
+}
   function getSeries(i) { return document.querySelectorAll('.series')[i]; }
 
   function showVfxSlide(index) {
@@ -650,7 +727,72 @@
   }, { passive: false, capture: true });
 
   trailSection.addEventListener('touchend', () => { lastX = null; lastY = null; });
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxClose = document.getElementById('lightboxClose');
 
+let activeLightboxGallery = null;
+
+document.querySelectorAll('.album-slides .slide img').forEach(img => {
+  img.style.cursor = 'zoom-in';
+  img.addEventListener('click', () => {
+    const gallery = img.closest('.album-gallery');
+    activeLightboxGallery = gallery;
+    const activeImg = gallery.querySelector('.slide.active img');
+    lightboxImg.src = activeImg ? activeImg.src : img.src;
+    lightbox.classList.add('open');
+    updateLightboxCounter();
+  });
+});
+
+function lightboxNext() {
+  if (!activeLightboxGallery) return;
+  const controller = albumControllers[Array.from(albumGalleries).indexOf(activeLightboxGallery)];
+  if (!controller) return;
+  controller.showSlide(controller.getIndex() + 1);
+ setTimeout(() => {
+    const activeImg = activeLightboxGallery.querySelector('.slide.active img');
+    if (activeImg) lightboxImg.src = activeImg.src;
+    updateLightboxCounter();
+  }, 450);
+}
+
+function lightboxPrev() {
+  if (!activeLightboxGallery) return;
+  const controller = albumControllers[Array.from(albumGalleries).indexOf(activeLightboxGallery)];
+  if (!controller) return;
+  controller.showSlide(controller.getIndex() - 1);
+  setTimeout(() => {
+    const activeImg = activeLightboxGallery.querySelector('.slide.active img');
+    if (activeImg) lightboxImg.src = activeImg.src;
+    updateLightboxCounter();
+  }, 450);
+}
+let lightboxTouchStartX = null;
+lightbox.addEventListener('touchstart', e => {
+  lightboxTouchStartX = e.touches[0].clientX;
+}, { passive: true });
+lightbox.addEventListener('touchend', e => {
+  if (lightboxTouchStartX === null) return;
+  const diff = lightboxTouchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) lightboxPrev();
+    else lightboxNext();
+  }
+  lightboxTouchStartX = null;
+}, { passive: true });
+lightboxClose.addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', e => {
+  if (e.target === lightbox) lightbox.classList.remove('open');
+});
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') lightbox.classList.remove('open');
+  if (e.key === 'ArrowRight') lightboxNext();
+  if (e.key === 'ArrowLeft') lightboxPrev();
+});
+document.getElementById('lightboxPrev').addEventListener('click', e => { e.stopPropagation(); lightboxPrev(); });
+document.getElementById('lightboxNext').addEventListener('click', e => { e.stopPropagation(); lightboxNext(); });
 })();
 </script>
 </article>
