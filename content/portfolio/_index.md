@@ -1,4 +1,4 @@
 ---
-title: "Photography"
-weight: 2
+title: "Portfolio"
+weight: 1
 ---
